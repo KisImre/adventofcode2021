@@ -31,4 +31,4 @@
 *.out
 *.app
 
-adventofcode
+day*/adventofcode_day*

@@ -1,13 +1,18 @@
 # Copyright (c) 2021, Kis Imre. All rights reserved.
 # SPDX-License-Identifier: MIT
 
-BINARY := adventofcode
+ifeq ($(DAY),)
+$(error DAY variable is not set)
+endif
 
-BUILDDIR ?= build
+include day$(DAY)/day.mk
 
-objs += main.o
+BINARY_NAME := adventofcode_day$(DAY)
+BINARY := day$(DAY)/$(BINARY_NAME)
 
-objs := $(addprefix $(BUILDDIR)/,$(objs))
+BUILDDIR := build/day_$(DAY)
+
+objs := $(addprefix $(BUILDDIR)/day$(DAY)/,$(objs))
 deps := $(objs:%.o=%.d)
 
 CXXFLAGS += -I. -O2 -Wall -Werror
@@ -21,6 +26,10 @@ MKDIR := mkdir -p
 
 all: $(BINARY)
 	@echo "Build finished"
+
+run: all
+	@echo Day $(DAY) results:
+	@cd day$(DAY) && ./$(BINARY_NAME)
 
 clean:
 	@echo "Cleaning"
