@@ -21,6 +21,10 @@ class Bingo {
         }
 
         void select_number(unsigned int n) {
+            if (acked) {
+                return;
+            }
+
             auto match = std::find(numbers.begin(), numbers.end(), n);
             if (match != numbers.end()) {
                 unsigned int index = std::distance(numbers.begin(), match);
@@ -31,11 +35,15 @@ class Bingo {
             }
         }
 
-        bool is_winner() {
-            return winner;
+        bool is_winner() const {
+            return winner && !acked;
         }
 
-        unsigned int score(unsigned int n) {
+        void ack() {
+            acked = true;
+        }
+
+        unsigned int score(unsigned int n) const {
             unsigned score = 0;
             for (size_t i = 0; i < numbers.size(); i++) {
                 if ((rows[i / size] & (1 << (i % size))) == 0) {
@@ -54,9 +62,10 @@ class Bingo {
         uint8_t rows[size] = { 0 };
         uint8_t cols[size] = { 0 };
         bool winner = false;
+        bool acked = false;
 };
 
-void part1() {
+int main() {
     std::fstream input("input");
     std::list<uint8_t> numbers;
     std::list<Bingo> bingos;
@@ -73,26 +82,21 @@ void part1() {
         bingos.push_back(Bingo(input));
     }
 
+    unsigned int first_score = 0, last_score = 0;
     for(auto n : numbers) {
         for (auto& b : bingos) {
             b.select_number(n);
             if (b.is_winner()) {
-                std::cout << b.score(n) << std::endl;
-                return;
+                last_score = b.score(n);
+                b.ack();
+                if (!first_score) {
+                    first_score = last_score;
+                }
+                //std::cout << b.score(n) << std::endl;
             }
         }
     }
 
-    std::cout << "No result" << std::endl;
-}
-
-void part2() {
-    std::fstream input("input");
-
-    std::cout << 0 << std::endl;
-}
-
-int main() {
-    part1();
-    part2();
+    std::cout << first_score << std::endl;
+    std::cout << last_score << std::endl;
 }
